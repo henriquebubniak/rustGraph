@@ -48,15 +48,15 @@ impl DFSResult {
 fn dfs_visit(
     g: &Graph,
     src: &Vertex,
-    mut dfs_result: DFSResult,
+    dfs_result: &mut DFSResult,
     df_time: &mut usize,
     ts_time: &mut usize,
-) -> DFSResult {
+) {
     dfs_result.discovery.insert(*src, *df_time);
     for v in g.adjacencies.get(src).unwrap() {
         if dfs_result.discovery.get(v) == Some(&usize::MAX) {
             *df_time += 1;
-            dfs_result = dfs_visit(g, v, dfs_result, df_time, ts_time)
+            dfs_visit(g, v, dfs_result, df_time, ts_time)
         } else if dfs_result.finish.get(v) == Some(&usize::MAX) {
             dfs_result.dag = false;
         }
@@ -65,7 +65,6 @@ fn dfs_visit(
     dfs_result.finish.insert(*src, *df_time);
     dfs_result.topological_sort.insert(*src, *ts_time);
     *ts_time += 1;
-    dfs_result
 }
 
 fn dfs(g: &Graph) -> DFSResult {
@@ -78,7 +77,7 @@ fn dfs(g: &Graph) -> DFSResult {
     }
     for (vertex, _) in &g.adjacencies {
         if *dfs_result.discovery.get(vertex).unwrap() == usize::MAX {
-            dfs_result = dfs_visit(g, vertex, dfs_result, &mut df_time, &mut ts_time);
+            dfs_visit(g, vertex, &mut dfs_result, &mut df_time, &mut ts_time);
             df_time += 1;
         }
     }
