@@ -47,6 +47,15 @@ impl DFSResult {
     }
 }
 
+pub struct SCCResult {
+    pub sccs: Vec<Vec<Vertex>>,
+}
+impl SCCResult {
+    fn new() -> SCCResult {
+        SCCResult { sccs: Vec::new() }
+    }
+}
+
 fn dfs_visit(
     g: &Graph,
     src: &Vertex,
@@ -69,7 +78,7 @@ fn dfs_visit(
     *ts_time += 1;
 }
 
-pub fn dfs(g: &Graph) -> DFSResult {
+pub fn dfs(g: &Graph, order: Option<&Vec<Vertex>>) -> DFSResult {
     let mut df_time = 0;
     let mut ts_time = 0;
     let mut dfs_result = DFSResult::new();
@@ -77,16 +86,28 @@ pub fn dfs(g: &Graph) -> DFSResult {
         dfs_result.discovery.insert(*vertex, usize::MAX);
         dfs_result.finish.insert(*vertex, usize::MAX);
     }
-    for (vertex, _) in g.adjacencies.iter() {
-        if *dfs_result.discovery.get(vertex).unwrap() == usize::MAX {
-            dfs_visit(g, vertex, &mut dfs_result, &mut df_time, &mut ts_time);
-            df_time += 1;
+    match order {
+        Some(order) => {
+            for vertex in order {
+                if *dfs_result.discovery.get(vertex).unwrap() == usize::MAX {
+                    dfs_visit(g, vertex, &mut dfs_result, &mut df_time, &mut ts_time);
+                    df_time += 1;
+                }
+            }
+        }
+        None => {
+            for (vertex, _) in g.adjacencies.iter() {
+                if *dfs_result.discovery.get(vertex).unwrap() == usize::MAX {
+                    dfs_visit(g, vertex, &mut dfs_result, &mut df_time, &mut ts_time);
+                    df_time += 1;
+                }
+            }
         }
     }
     dfs_result
 }
 
-pub fn bfs(g : &Graph, src : usize) -> Vec<usize> {
+pub fn bfs(g: &Graph, src: usize) -> Vec<usize> {
     let mut d = Vec::new();
     d.resize(g.adjacencies.len(), usize::MAX);
     d[src] = 0;
@@ -103,4 +124,53 @@ pub fn bfs(g : &Graph, src : usize) -> Vec<usize> {
         }
     }
     d
+}
+
+fn transpose(g: &Graph) -> Graph {
+    let mut gt = Graph::new();
+    for (u, adj) in &g.adjacencies {
+        for v in adj {
+            gt.insert_edge(*v, *u);
+        }
+    }
+    gt
+}
+
+fn get_scc(
+    g: &Graph,
+    src: Vertex,
+    scc_tag: usize,
+    visited: &mut HashMap<usize, bool>,
+    scc_result: &mut SCCResult,
+) {
+    visited.insert(src, true);
+    scc_result.sccs[scc_tag].push(src);
+    for v in g.adjacencies.get(&src).unwrap() {
+        if visited.get(v) == Some(&false) {
+            get_scc(g, *v, scc_tag, visited, scc_result);
+        }
+    }
+}
+
+pub fn scc(g: &Graph) -> SCCResult {
+    let mut scc_result = SCCResult::new();
+    let dfs_result = dfs(g, None);
+    let mut inv_topological_sort = dfs_result.topological_sort.clone();
+    inv_topological_sort.reverse();
+    let gt = transpose(g);
+
+    let mut scc_tag = 0;
+    let mut visited: HashMap<usize, bool> = HashMap::new();
+    for (vertex, _) in &gt.adjacencies {
+        visited.insert(*vertex, false);
+    }
+    for vertex in inv_topological_sort {
+        if visited.get(&vertex) == Some(&false) {
+            scc_result.sccs.resize(scc_result.sccs.len()+1, Vec::new());
+            get_scc(&gt, vertex, scc_tag, &mut visited, &mut scc_result);
+            scc_tag += 1;
+        }
+    }
+
+    scc_result
 }
