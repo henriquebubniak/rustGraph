@@ -1,9 +1,9 @@
 #![allow(dead_code)]
 
+use serde::{Deserialize, Serialize};
+use std::collections::{HashMap, VecDeque};
 use std::fs::File;
 use std::io::prelude::*;
-use std::collections::{HashMap, VecDeque};
-use serde::{Serialize, Deserialize};
 
 type Vertex = usize;
 #[derive(Serialize, Deserialize, Debug)]
@@ -28,17 +28,21 @@ impl Graph {
             self.insert_node(adj);
         }
         match self.adjacencies.get_mut(&vertex) {
-            Some(adj_list) => adj_list.push(adj),
+            Some(adj_list) => {
+                if !adj_list.contains(&adj) {
+                    adj_list.push(adj);
+                }
+            }
             None => println!("Node not in Graph"),
         }
     }
     pub fn save_to_file(&self, path: &str) {
         let mut file = File::create(path).expect("Failed to open file");
         let yaml = serde_yaml::to_string(self).expect("Failed to serialize graph");
-        file.write_all(&yaml.as_bytes()).expect("Failed to write to file");
+        file.write_all(&yaml.as_bytes())
+            .expect("Failed to write to file");
     }
 }
-
 pub struct DFSResult {
     pub discovery: HashMap<Vertex, usize>,
     pub finish: HashMap<Vertex, usize>,
@@ -189,7 +193,8 @@ pub fn scc(g: &Graph) -> SCCResult {
 pub fn read_from_file(path: &str) -> Graph {
     let mut file = File::open(path).expect("Failed to open file");
     let mut contents = String::new();
-    file.read_to_string(&mut contents).expect("Failed to read file contents");
+    file.read_to_string(&mut contents)
+        .expect("Failed to read file contents");
     let g = serde_yaml::from_str(&contents).expect("Failed to deserialize graph");
     g
 }
