@@ -1,8 +1,12 @@
 #![allow(dead_code)]
 
+use std::fs::File;
+use std::io::prelude::*;
 use std::collections::{HashMap, VecDeque};
+use serde::{Serialize, Deserialize};
 
 type Vertex = usize;
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Graph {
     adjacencies: HashMap<Vertex, Vec<Vertex>>,
 }
@@ -166,11 +170,21 @@ pub fn scc(g: &Graph) -> SCCResult {
     }
     for vertex in inv_topological_sort {
         if visited.get(&vertex) == Some(&false) {
-            scc_result.sccs.resize(scc_result.sccs.len()+1, Vec::new());
+            scc_result
+                .sccs
+                .resize(scc_result.sccs.len() + 1, Vec::new());
             get_scc(&gt, vertex, scc_tag, &mut visited, &mut scc_result);
             scc_tag += 1;
         }
     }
 
     scc_result
+}
+
+pub fn read_from_file(path: &str) -> Graph {
+    let mut file = File::open(path).expect("Failed to open file");
+    let mut contents = String::new();
+    file.read_to_string(&mut contents).expect("Failed to read file contents");
+    let g = serde_yaml::from_str(&contents).expect("Failed to deserialize graph");
+    g
 }
