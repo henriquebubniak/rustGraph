@@ -5,5 +5,6 @@ fn main() -> std::io::Result<()> {
     println!("{:?}", graph);
     graph.insert_edge(6, 7);
     println!("{:?}", graph);
+    graph.save_to_file("graph.yaml");
     Ok(())
 }

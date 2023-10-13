@@ -32,6 +32,11 @@ impl Graph {
             None => println!("Node not in Graph"),
         }
     }
+    pub fn save_to_file(&self, path: &str) {
+        let mut file = File::create(path).expect("Failed to open file");
+        let yaml = serde_yaml::to_string(self).expect("Failed to serialize graph");
+        file.write_all(&yaml.as_bytes()).expect("Failed to write to file");
+    }
 }
 
 pub struct DFSResult {
