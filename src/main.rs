@@ -1,10 +1,16 @@
-mod graph;
-use crate::graph::read_from_file;
-fn main() -> std::io::Result<()> {
-    let mut graph = read_from_file("dependencies.yaml");
-    println!("{:?}", graph);
-    graph.insert_edge(6, 7);
-    println!("{:?}", graph);
-    graph.save_to_file("dependencies.yaml");
-    Ok(())
+use grph::Graph;
+use std::env;
+fn main() {
+    let target: Vec<String> = env::args().skip(1).collect();
+    let target = &target[0];
+    println!("{:?}", target);
+    let g = Graph::new()
+        .read_from_file("deps.yaml")
+        .expect("A target depends on non existing target");
+    let mut target_tree = Graph::new();
+    match g.make.get(target) {
+        Some(s) => (),
+        None => (),
+    }
+    g.save_to_file("deps.yaml");
 }
