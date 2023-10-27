@@ -1,1 +1,1 @@
-/Users/henriquebubniak/Documents/Estudos/Dev/Rust/projects/grph/target/debug/libgrph.rlib: /Users/henriquebubniak/Documents/Estudos/Dev/Rust/projects/grph/src/lib.rs
+/Users/henriquebubniak/docker_workspaces/rustGraph/target/debug/libgrph.rlib: /Users/henriquebubniak/docker_workspaces/rustGraph/src/lib.rs

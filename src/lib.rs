@@ -3,10 +3,17 @@ use std::fs::File;
 use std::io::*;
 
 use serde_derive::{Deserialize, Serialize};
-#[derive(Debug, Deserialize, Serialize)]
+
+pub enum State {
+    Unexplored,
+    Visited,
+    Finished,
+}
+
+#[derive(Debug, Deserialize, Serialize, PartialEq, Eq, Hash)]
 pub struct Component {
-    run: String,
-    dependencies: Vec<String>,
+    pub run: String,
+    pub dependencies: Vec<String>,
 }
 impl Component {
     fn new(run: &str, dependencies: Vec<&str>) -> Component {

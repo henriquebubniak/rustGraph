@@ -1,23 +1,28 @@
 make:
   target:
     run: gcc target
-    dependencies: []
-  rom:
-    run: gcc rom.cpp -o rom
     dependencies:
-    - register
-  register:
-    run: gcc register.cpp -o register
-    dependencies: []
-  program_counter:
-    run: gcc program_counter.cpp -o program_counter
-    dependencies: []
-  control_unit:
-    run: gcc control_unit.cpp -o control_unit
-    dependencies: []
-  top_level:
-    run: gcc top_level.cpp -o top_level
+    - bosta
+    - lixo
+    - coco
+  bosta:
+    run: gcc bosta
     dependencies:
-    - program_counter
-    - rom
-    - control_unit
+    - lixo
+    - coco
+  lixo:
+    run: gcc lixo
+    dependencies:
+    - coco
+    - zambonete
+  coco:
+    run: "gcc coco"
+    dependencies:
+    - sujeira
+  sujeira:
+    run: "gcc sujeira"
+    dependencies:
+  zambonete:
+    run: "gcc zambonete"
+    dependencies:
+    - lixo
